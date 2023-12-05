@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dhttp_test_EXPORTS
 
-CXX_INCLUDES = -I/home/sw9-bois/cpp_client/include
+CXX_INCLUDES = -I/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/cpp_client/include
 
 CXX_FLAGS = -fPIC -std=gnu++14
 
