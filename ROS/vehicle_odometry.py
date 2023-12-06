@@ -29,12 +29,6 @@ class VehicleOdomListener(Node):
         self.x = vehicle_local_position.position[0]
         self.y = vehicle_local_position.position[1]
         self.destroy_node()
-        
-
-def init_rclpy():
-    print("initializing rclpy")
-    rclpy.init()
-
 
 def get_drone_state():
     executor = rclpy.executors.SingleThreadedExecutor()
