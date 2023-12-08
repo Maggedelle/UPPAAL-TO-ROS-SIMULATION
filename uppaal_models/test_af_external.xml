@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+clock c1;
+import "/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/cpp_client/build/libhttp_test.so" {
+    int a();
+    int b();
+    int c();
+};</declaration>
+	<template>
+		<name x="5" y="5">Drone_Control</name>
+		<declaration>// Place local declarations here.
+int lol = 0;
+int hat = 0;</declaration>
+		<location id="id0" x="34" y="0">
+			<name x="24" y="-34">s0</name>
+			<label kind="exponentialrate" x="24" y="34">1</label>
+		</location>
+		<location id="id1" x="144" y="0">
+			<name x="134" y="-34">s1</name>
+			<label kind="exponentialrate" x="134" y="34">1</label>
+		</location>
+		<location id="id2" x="-68" y="0">
+			<name x="-78" y="-34">s2</name>
+			<label kind="exponentialrate" x="-78" y="34">1</label>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-34" y="59">hat = b()</label>
+			<nail x="-17" y="59"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="-34" y="-68">hat = c()</label>
+			<nail x="-25" y="-51"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="102" y="68">hat = b()</label>
+			<nail x="110" y="68"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="68" y="-68">hat = a()</label>
+			<nail x="76" y="-51"/>
+		</transition>
+	</template>
+	<system>
+system Drone_Control;
+</system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=100000000]{Drone_Control.lol}</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>strategy GoSafe = control: A&lt;&gt; Drone_Control.s2 &amp;&amp; c1&lt;=60</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2023-12-08 11:11:03 +0100">
+			</result>
+		</query>
+	</queries>
+</nta>

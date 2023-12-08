@@ -1,10 +1,12 @@
 from flask import Flask
 from ROS import vehicle_odometry, offboard_control
 import rclpy
-
+import os
 app = Flask(__name__)
 global offboard_control_instance
 
+global x
+x = 0
 
 @app.route('/')
 def hello():
@@ -26,6 +28,33 @@ def move_along_x_axis():
     offboard_control_instance.x -= 0.1
     print(offboard_control_instance.x)
     return 'moving drone along x axis'
+
+
+@app.route('/a')
+def a():
+    global x
+    x+=1
+    print('a:', x)
+    return 'a'
+
+@app.route('/b')
+def b():
+    global x
+    x-=1
+    print('b:', x)
+    return 'b'
+
+@app.route('/c')
+def c():
+    global x
+    x+=1
+    print('c:', x)
+    return 'c'
+
+@app.route("/reset_simulation")
+def reset_simulation():
+    cmd = 'cd ~/PX4-Autopilot && make px4_sitl gz_x500_depth'
+    os.system(cmd)
 
 
 def init_rclpy():
