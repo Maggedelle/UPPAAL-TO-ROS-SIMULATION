@@ -3,7 +3,7 @@
 <nta>
 	<declaration>// Place global declarations here.
 // ENVIRONMENT
-const int goal_x = 7; 
+const int goal_x = 6; 
 const int goal_y = 9;
 const double e = 0.1;
 
@@ -14,8 +14,8 @@ const int env[11][11] = {
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
@@ -77,11 +77,14 @@ int get_y() {
 		</location>
 		<location id="id5" x="2023" y="-195">
 			<name x="2040" y="-178">Target</name>
+			<label kind="invariant" x="2031" y="-161">c &lt;= 1</label>
 		</location>
 		<init ref="id0"/>
 		<transition id="id6">
 			<source ref="id5"/>
 			<target ref="id5"/>
+			<label kind="guard" x="2065" y="-263">c == 1</label>
+			<label kind="assignment" x="2065" y="-246">c = 0</label>
 			<nail x="2082" y="-212"/>
 			<nail x="2031" y="-254"/>
 		</transition>
@@ -89,6 +92,7 @@ int get_y() {
 			<source ref="id0"/>
 			<target ref="id5"/>
 			<label kind="guard" x="1802" y="-8">x == goal_x &amp;&amp; y == goal_y</label>
+			<label kind="assignment" x="1446" y="17">c = 0</label>
 		</transition>
 		<transition id="id8" controllable="false">
 			<source ref="id4"/>
@@ -170,7 +174,7 @@ c = 0</label>
 			<source ref="id1"/>
 			<target ref="id0"/>
 			<label kind="guard" x="1487" y="17">x == get_x() &amp;&amp; c == 1</label>
-			<label kind="assignment" x="1487" y="34">c = 0</label>
+			<label kind="assignment" x="1785" y="-110">c = 0</label>
 			<nail x="1470" y="-34"/>
 			<nail x="1470" y="136"/>
 		</transition>
@@ -197,9 +201,9 @@ system DroneAbstract;
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy Safe = control: A[] Drone.drone_state != 1</formula>
+			<formula>strategy Safe = control: A[] DroneAbstract.drone_state != 1</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-10 19:08:14 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 14:34:18 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
@@ -220,16 +224,16 @@ system DroneAbstract;
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy FastSafe = minE(time) [&lt;=1000] : &lt;&gt; DroneAbstract.x == goal_x &amp;&amp; DroneAbstract.y == goal_y</formula>
+			<formula>strategy FastSafe = minE(time) [&lt;=1000]  {DroneAbstract.x, DroneAbstract.y } -&gt; {}  : &lt;&gt; DroneAbstract.Target under Safe</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 11:03:59 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 14:34:22 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>saveStrategy("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json", FastSafe)</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 11:04:30 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 14:34:24 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>

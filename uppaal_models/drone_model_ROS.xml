@@ -3,7 +3,7 @@
 <nta>
 	<declaration>// Place global declarations here.
 // ENVIRONMENT
-const int goal_x = 7; 
+const int goal_x = 6; 
 const int goal_y = 9;
 const double e = 0.05;
 
@@ -18,8 +18,8 @@ const int env[11][11] = {
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
@@ -90,8 +90,9 @@ int get_y() {
         return prev_y;
     }
 }</declaration>
-		<location id="id0" x="2023" y="-195">
-			<name x="2040" y="-178">Target</name>
+		<location id="id0" x="1955" y="-170">
+			<name x="1972" y="-153">Target</name>
+			<label kind="invariant" x="1963" y="-136">c &lt;= 1</label>
 		</location>
 		<location id="id1" x="1428" y="229">
 			<name x="1418" y="195">waiting</name>
@@ -114,16 +115,20 @@ int get_y() {
 			<label kind="invariant" x="1811" y="255">c &lt;= 1</label>
 		</location>
 		<init ref="id1"/>
-		<transition id="id6">
+		<transition id="id6" controllable="false">
 			<source ref="id0"/>
 			<target ref="id0"/>
-			<nail x="2082" y="-212"/>
-			<nail x="2031" y="-254"/>
+			<label kind="guard" x="2023" y="-246">c == 1</label>
+			<label kind="assignment" x="2023" y="-229">c = 0</label>
+			<nail x="2014" y="-187"/>
+			<nail x="1963" y="-229"/>
 		</transition>
 		<transition id="id7">
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="guard" x="1802" y="-8">x == goal_x &amp;&amp; y == goal_y</label>
+			<label kind="guard" x="1742" y="34">x == goal_x &amp;&amp; y == goal_y</label>
+			<label kind="assignment" x="1743" y="45">c = 0,
+shutdown_drone()</label>
 		</transition>
 		<transition id="id8" controllable="false">
 			<source ref="id5"/>
@@ -205,7 +210,7 @@ c = 0</label>
 			<source ref="id2"/>
 			<target ref="id1"/>
 			<label kind="guard" x="1487" y="17">x == get_x() &amp;&amp; c == 1</label>
-			<label kind="assignment" x="1487" y="34">c = 0</label>
+			<label kind="assignment" x="1802" y="8">c = 0</label>
 			<nail x="1470" y="-34"/>
 			<nail x="1470" y="136"/>
 		</transition>
@@ -255,15 +260,54 @@ strategy Safe = loadStrategy{i,j}-&gt;{d,f}("folder/file.json")</formula>
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy SafeFast = loadStrategy{}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
+			<formula>strategy SafeFast = loadStrategy{DroneAbstract.x, DroneAbstract.y, goal_x, goal_y, DroneAbstract.c}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 13:17:54 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 14:37:40 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>simulate[&lt;=100000000;1]{DroneAbstract.drone_x, DroneAbstract.drone_y, DroneAbstract.x, DroneAbstract.y} :  DroneAbstract.Target under SafeFast</formula>
 			<comment/>
+			<result outcome="success" type="interval" value="≥ 0.025 (95% CI)" timestamp="2023-12-11 14:38:48 +0100">
+				<option key="--diagnostic" value="-1"/>
+				<details>≥ 0.025 (95% CI)</details>
+				<plot title="Simulations (1)" xaxis="time" yaxis="value">
+					<series title="DroneAbstract.drone_x" type="l" color="0xff0000" encoding="csv">0.0,0.0
+63.0,-1.0
+100.0,-2.0
+340.0,-3.0
+					</series>
+					<series title="DroneAbstract.drone_y" type="l" color="0x80ff00" encoding="csv">0.0,0.0
+22.0,0.0
+136.0,-1.0
+184.0,-2.0
+210.0,-3.0
+245.0,-4.0
+275.0,-5.0
+295.0,-6.0
+314.0,-7.0
+340.0,-8.0
+					</series>
+					<series title="DroneAbstract.x" type="l" color="0x00ffff" encoding="csv">0.0,9.0
+63.0,8.0
+100.0,7.0
+340.0,6.0
+					</series>
+					<series title="DroneAbstract.y" type="l" color="0x8000ff" encoding="csv">0.0,1.0
+22.0,1.0
+136.0,2.0
+184.0,3.0
+210.0,4.0
+245.0,5.0
+275.0,6.0
+295.0,7.0
+314.0,8.0
+340.0,9.0
+					</series>
+					<comment/>
+				</plot>
+			</result>
 		</query>
 	</queries>
 </nta>
