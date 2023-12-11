@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from ROS import vehicle_odometry, offboard_control
 import rclpy
 
@@ -12,7 +12,11 @@ def hello():
     
 @app.route('/get_position_x')
 def get_postion_x():
-    return vehicle_odometry.get_drone_state()
+    return vehicle_odometry.get_drone_pos_x()
+
+@app.route('/get_position_y')
+def get_postion_y():
+    return vehicle_odometry.get_drone_pos_y()
 
 @app.route('/shutdown_drone')
 def shutdown_drone():
@@ -21,10 +25,13 @@ def shutdown_drone():
     return 'Shutting down drone'
 
 
-@app.route('/move_drone_along_x_axis')
-def move_along_x_axis():
-    offboard_control_instance.x -= 0.1
-    print(offboard_control_instance.x)
+@app.route('/move_drone')
+def move_drone():
+    new_x = request.args.get('x')
+    new_y = request.args.get('y')
+    print(new_x,offboard_control_instance.x,new_y,offboard_control_instance.y)
+    offboard_control_instance.x = float(new_x)
+    offboard_control_instance.y = float(new_y)
     return 'moving drone along x axis'
 
 

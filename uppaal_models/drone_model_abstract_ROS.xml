@@ -3,10 +3,11 @@
 <nta>
 	<declaration>// Place global declarations here.
 // ENVIRONMENT
-int goal_x = 7; 
-int goal_y = 9;
+const int goal_x = 7; 
+const int goal_y = 9;
+const double e = 0.1;
 
-int env[11][11] = {
+const int env[11][11] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -21,35 +22,30 @@ int env[11][11] = {
 };
 </declaration>
 	<template>
-		<name x="5" y="5">Drone</name>
+		<name x="5" y="5">DroneAbstract</name>
 		<declaration>// Place local declarations here.
 int x = 9; // ROW
 int y = 1;  // COL
 
 clock c;
 int drone_state = 0;
+int drone_x = 0;
+int drone_y = 0;
 
 void move(int dir_x, int dir_y) {
     x = x + dir_x;
     y = y + dir_y;
+    drone_x = drone_x + dir_x;
+    drone_y = drone_y + dir_y;
     drone_state = env[x][y];
 }
 
 
 int isValidMove(int dir_x, int dir_y) {
-    return env[x+dir_x][y+dir_y];
-}
-
-int isValidMove_imp(int dir_x, int dir_y){
-    if (dir_x &lt; 0){
-        return env[x-1][y];
-    } else if (dir_x &gt; 0) {
-        return env[x+1][y];
-    } else if (dir_y &lt; 0) {
-        return env[x][y-1];
-    } else {
-        return env[x][y+1];
+    if (env[x][y] == 2) {
+        return 1;
     }
+    return env[x+dir_x][y+dir_y];
 }
 
 int get_x() {
@@ -60,7 +56,8 @@ int get_y() {
     return y;
 }</declaration>
 		<location id="id0" x="1428" y="229">
-			<label kind="invariant" x="1445" y="204">c &lt;= 1</label>
+			<name x="1418" y="195">waiting</name>
+			<label kind="invariant" x="1351" y="238">c &lt;= 1</label>
 		</location>
 		<location id="id1" x="1428" y="-119">
 			<name x="1386" y="-127">UP</name>
@@ -78,8 +75,22 @@ int get_y() {
 			<name x="1811" y="187">RIGHT</name>
 			<label kind="invariant" x="1811" y="255">c &lt;= 1</label>
 		</location>
+		<location id="id5" x="2023" y="-195">
+			<name x="2040" y="-178">Target</name>
+		</location>
 		<init ref="id0"/>
-		<transition id="id5" controllable="false">
+		<transition id="id6">
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<nail x="2082" y="-212"/>
+			<nail x="2031" y="-254"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="guard" x="1802" y="-8">x == goal_x &amp;&amp; y == goal_y</label>
+		</transition>
+		<transition id="id8" controllable="false">
 			<source ref="id4"/>
 			<target ref="id4"/>
 			<label kind="guard" x="1912" y="204">y != get_y() &amp;&amp; c == 1</label>
@@ -87,7 +98,7 @@ int get_y() {
 			<nail x="1895" y="263"/>
 			<nail x="1895" y="195"/>
 		</transition>
-		<transition id="id6" controllable="false">
+		<transition id="id9" controllable="false">
 			<source ref="id3"/>
 			<target ref="id3"/>
 			<label kind="guard" x="756" y="212">y != get_y() &amp;&amp; c == 1</label>
@@ -95,7 +106,7 @@ int get_y() {
 			<nail x="968" y="263"/>
 			<nail x="968" y="195"/>
 		</transition>
-		<transition id="id7" controllable="false">
+		<transition id="id10" controllable="false">
 			<source ref="id4"/>
 			<target ref="id0"/>
 			<label kind="guard" x="1547" y="280">y == get_y() &amp;&amp; c == 1</label>
@@ -103,7 +114,7 @@ int get_y() {
 			<nail x="1751" y="272"/>
 			<nail x="1513" y="272"/>
 		</transition>
-		<transition id="id8" controllable="false">
+		<transition id="id11" controllable="false">
 			<source ref="id3"/>
 			<target ref="id0"/>
 			<label kind="guard" x="1173" y="153">y == get_y() &amp;&amp; c == 1</label>
@@ -111,21 +122,21 @@ int get_y() {
 			<nail x="1122" y="187"/>
 			<nail x="1334" y="187"/>
 		</transition>
-		<transition id="id9">
+		<transition id="id12">
 			<source ref="id0"/>
 			<target ref="id4"/>
 			<label kind="guard" x="1547" y="195">isValidMove(0,1) != 1</label>
 			<label kind="assignment" x="1547" y="153">move(0, 1),
 c = 0</label>
 		</transition>
-		<transition id="id10">
+		<transition id="id13">
 			<source ref="id0"/>
 			<target ref="id3"/>
 			<label kind="guard" x="1122" y="246">isValidMove(0,-1) != 1</label>
 			<label kind="assignment" x="1122" y="272">move(0, -1),
 c = 0</label>
 		</transition>
-		<transition id="id11" controllable="false">
+		<transition id="id14" controllable="false">
 			<source ref="id2"/>
 			<target ref="id0"/>
 			<label kind="guard" x="1173" y="374">x == get_x() &amp;&amp; c == 1</label>
@@ -133,14 +144,14 @@ c = 0</label>
 			<nail x="1385" y="493"/>
 			<nail x="1385" y="314"/>
 		</transition>
-		<transition id="id12">
+		<transition id="id15">
 			<source ref="id0"/>
 			<target ref="id2"/>
 			<label kind="guard" x="1445" y="374">isValidMove(1,0) != 1</label>
 			<label kind="assignment" x="1445" y="399">move(1, 0),
 c = 0</label>
 		</transition>
-		<transition id="id13" controllable="false">
+		<transition id="id16" controllable="false">
 			<source ref="id1"/>
 			<target ref="id1"/>
 			<label kind="guard" x="1386" y="-204">x != get_x() &amp;&amp; c == 1</label>
@@ -148,14 +159,14 @@ c = 0</label>
 			<nail x="1462" y="-178"/>
 			<nail x="1394" y="-178"/>
 		</transition>
-		<transition id="id14">
+		<transition id="id17">
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="guard" x="1215" y="17">isValidMove(-1,0) != 1</label>
 			<label kind="assignment" x="1300" y="42">move(-1, 0),
 c = 0</label>
 		</transition>
-		<transition id="id15" controllable="false">
+		<transition id="id18" controllable="false">
 			<source ref="id1"/>
 			<target ref="id0"/>
 			<label kind="guard" x="1487" y="17">x == get_x() &amp;&amp; c == 1</label>
@@ -163,7 +174,7 @@ c = 0</label>
 			<nail x="1470" y="-34"/>
 			<nail x="1470" y="136"/>
 		</transition>
-		<transition id="id16" controllable="false">
+		<transition id="id19" controllable="false">
 			<source ref="id2"/>
 			<target ref="id2"/>
 			<label kind="guard" x="1385" y="646">x != get_x() &amp;&amp; c == 1</label>
@@ -172,59 +183,12 @@ c = 0</label>
 			<nail x="1462" y="638"/>
 		</transition>
 	</template>
-	<template>
-		<name>DroneSimple</name>
-		<declaration>// Place local declarations here.
-int x;
-int y;
-
-int check(){
-    return env[-1][5];
-}</declaration>
-		<location id="id17" x="-34" y="-42">
-		</location>
-		<init ref="id17"/>
-		<transition id="id18">
-			<source ref="id17"/>
-			<target ref="id17"/>
-			<label kind="assignment" x="-85" y="-153">x = check()</label>
-			<label kind="comments" x="-43" y="-110">UP</label>
-			<nail x="-69" y="-127"/>
-			<nail x="-1" y="-127"/>
-		</transition>
-		<transition id="id19">
-			<source ref="id17"/>
-			<target ref="id17"/>
-			<label kind="assignment" x="-238" y="-51">x = check()</label>
-			<label kind="comments" x="-127" y="-51">RIGHT</label>
-			<nail x="-42" y="-42"/>
-			<nail x="-136" y="-8"/>
-			<nail x="-136" y="-76"/>
-		</transition>
-		<transition id="id20">
-			<source ref="id17"/>
-			<target ref="id17"/>
-			<label kind="assignment" x="-76" y="51">x = check()</label>
-			<label kind="comments" x="-51" y="8">DOWN</label>
-			<nail x="0" y="42"/>
-			<nail x="-68" y="42"/>
-		</transition>
-		<transition id="id21">
-			<source ref="id17"/>
-			<target ref="id17"/>
-			<label kind="assignment" x="85" y="-51">x = check()</label>
-			<label kind="comments" x="25" y="-51">LEFT</label>
-			<nail x="68" y="-76"/>
-			<nail x="68" y="-34"/>
-			<nail x="68" y="-8"/>
-		</transition>
-	</template>
 	<system>// Place template instantiations here.
 clock time;
 
 
 // List one or more processes to be composed into a system.
-system Drone;
+system DroneAbstract;
 </system>
 	<queries>
 		<option key="--diagnostic" value="-1"/>
@@ -242,7 +206,7 @@ system Drone;
 		<query>
 			<formula>strategy Goal = control: A&lt;&gt; Drone.x == goal_x &amp;&amp; Drone.y == goal_y</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-10 19:55:18 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 09:28:40 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
@@ -256,16 +220,16 @@ system Drone;
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy FastSafe = minE(time) [&lt;=1000] : &lt;&gt; Drone.x == goal_x &amp;&amp; Drone.y == goal_y</formula>
+			<formula>strategy FastSafe = minE(time) [&lt;=1000] : &lt;&gt; DroneAbstract.x == goal_x &amp;&amp; DroneAbstract.y == goal_y</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 09:10:02 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 11:03:59 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
-			<formula>strategy FastSafe = minE(time) [&lt;=1000] : &lt;&gt; Drone.drone_state == 2</formula>
+			<formula>saveStrategy("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json", FastSafe)</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 09:11:52 +0100">
+			<result outcome="success" type="quality" timestamp="2023-12-11 11:04:30 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
