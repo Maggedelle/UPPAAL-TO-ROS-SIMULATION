@@ -40,7 +40,7 @@ class OffboardControl(Node):
         self.shutdown_drone = False
         self.x = 0.0
         self.y = 0.0
-        self.z = -1.5
+        self.z = -0.60
         self.vehicle_status = VehicleStatus()
         self.has_aired = False
         self.vehicle_local_position = VehicleLocalPosition()
@@ -94,7 +94,7 @@ class OffboardControl(Node):
         """Publish the trajectory setpoint."""
         msg = TrajectorySetpoint()
         msg.position = [x, y, z]
-        msg.yaw = -3.14  # (90 degree)
+        msg.yaw = 0.0  # (90 degree)
         msg.timestamp = int(self.get_clock().now().nanoseconds / 1000)
         self.trajectory_setpoint_publisher.publish(msg)
 

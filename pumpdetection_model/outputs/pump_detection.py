@@ -2,7 +2,6 @@ import urllib.request
 import os
 import ssl
 import json
-
 import torch
 import torchvision
 from torchvision import transforms
@@ -12,6 +11,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from glob import glob
+import re
+import typing
 
 
 def allowSelfSignedHttps(allowed):
@@ -100,7 +102,7 @@ def run_pumpmodel():
     headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
 
     # POST Request
-    img = 'pics/all_pumps.jpg'
+    img = 'pics/camera_image.jpg'
     data = open(img, 'rb').read()
     req_post = urllib.request.Request(url, data, headers=headers, method="POST")
 
@@ -123,7 +125,7 @@ def run_pumpdetection():
     headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
 
     # POST Request
-    img = 'pics/blueflux.jpg'
+    img = 'pics/camera_image.jpeg'
     data = open(img, 'rb').read()
     req_post = urllib.request.Request(url, data, headers=headers, method="POST")
 
@@ -145,4 +147,55 @@ def run_pumpdetection():
         print(error.info())
         print(error.read().decode("utf8", 'ignore'))
 
-run_pumpdetection()
+# Function to run model binary inference
+def run_pumpdetection_args(img: str):
+    url = 'https://pump-detection-1.northeurope.inference.ml.azure.com/score'
+    api_key = 'Iu6dwaxhG038tQ0738TRwnLoga70HSuL'
+    headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
+
+    # POST Request
+    data = open(img, 'rb').read()
+    req_post = urllib.request.Request(url, data, headers=headers, method="POST")
+
+    try:
+        response_post = urllib.request.urlopen(req_post)
+        result = response_post.read()
+        response_data = json.loads(result.decode("utf-8"))
+
+        if response_data['boxes'] == []: # e.g. b'{"filename": "/tmp/tmpyxfzybjt/tmptv601ser", "boxes": []}\n'
+            result = False
+        else:
+            result = True
+
+        print("Post request result: ", result)
+        return result
+    
+    except urllib.error.HTTPError as error:
+        print("The POST request failed with status code: " + str(error.code))
+        # Print the headers - they include the request ID and the timestamp, which are useful for debugging the failure
+        print(error.info())
+        print(error.read().decode("utf8", 'ignore'))
+#run_pumpdetection()
+
+def floats(s: str) -> typing.List[float]:
+    return lmap(float, re.findall(r"-?\d+(?:.\d+)?", s))
+
+def ints(s: str) -> typing.List[int]:
+    return lmap(int, re.findall(r"-?\d+", s))
+
+def lmap(func, iterables):
+    return list(map(func,iterables))        
+
+def get_detection_results():
+    paths = glob("pics/camera_image*")
+    float_nums = [floats(path)[0] for path in paths]
+    int_nums = [ints(path)[-1] for path in paths]
+    imgs = sorted(list(zip(paths,float_nums,int_nums)), key=lambda dist: (dist[1],dist[2]), reverse=True)
+    log = open('distance_result_log.txt', 'a')
+    for path,distance,num in imgs:
+        res = run_pumpdetection_args(path)
+        log.write(f"Image number {num} with distance in meters: {distance:5.3f} -> Detection result: {res}\n")
+    log.close()
+    
+    
+get_detection_results()

@@ -8,10 +8,14 @@ bridge = CvBridge()
 
 class ImageListener(Node):
     """Node for controlling a vehicle in offboard mode."""
-    x = 0.0
-    y = 0.0
-    def __init__(self) -> None:
+    distance = 1.65
+    image_num = 0
+    
+    def __init__(self, _distance, _image_num) -> None:
         super().__init__('vehicle_odom')
+
+        self.distance = _distance
+        self.image_num = _image_num
         # Configure QoS profile for publishing and subscribing
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,
@@ -31,13 +35,13 @@ class ImageListener(Node):
             print(e)
         else:
             # Save your OpenCV2 image as a jpeg 
-            cv2.imwrite('camera_image.jpeg', cv2_img)
+            cv2.imwrite(f'/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/pumpdetection_model/outputs/pics/camera_image_{str(self.distance)[:5]}_{str(self.image_num)}.jpg', cv2_img)
             self.destroy_node()
 
     
-def take_image():
+def take_image(distance, image_num):
     executor = rclpy.executors.SingleThreadedExecutor()
-    image_listener = ImageListener()
+    image_listener = ImageListener(distance, image_num)
     executor.add_node(image_listener)
     executor.spin_once()
-    return "took image"
+    return 0

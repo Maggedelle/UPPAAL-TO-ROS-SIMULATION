@@ -25,9 +25,18 @@ def shutdown_drone():
         offboard_control_instance.shutdown_drone = True
     return 'Shutting down drone'
 
+global image_num
+image_num = 1
+
 @app.route('/take_image')
 def take_image():
-    return camera_control.take_image()
+    global image_num
+    distance = str(1.65 - offboard_control_instance.x)
+    if image_num % 6 == 0:
+        image_num = 1
+    camera_control.take_image(distance,image_num)
+    image_num += 1
+    return "Image taken"
 
 
 @app.route('/move_drone')
