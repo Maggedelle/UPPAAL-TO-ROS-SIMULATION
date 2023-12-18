@@ -1,10 +1,11 @@
 from flask import Flask, request
-from ROS import vehicle_odometry, offboard_control
+from ROS import vehicle_odometry, offboard_control, camera_control
 import rclpy
+import os
+import threading
 
 app = Flask(__name__)
 global offboard_control_instance
-
 
 @app.route('/')
 def hello():
@@ -24,6 +25,10 @@ def shutdown_drone():
         offboard_control_instance.shutdown_drone = True
     return 'Shutting down drone'
 
+@app.route('/take_image')
+def take_image():
+    return camera_control.take_image()
+
 
 @app.route('/move_drone')
 def move_drone():
@@ -34,6 +39,13 @@ def move_drone():
     offboard_control_instance.y = float(new_y)
     return 'moving drone along x axis'
 
+def init_image_bridge():
+    print("Starting image bridge...")
+    def run_bridge():
+        print("image bridge started...")
+        os.system('ros2 run ros_gz_bridge parameter_bridge /camera@sensor_msgs/msg/Image@gz.msgs.Image')
+    image_bridge_thread = threading.Thread(target=run_bridge)
+    image_bridge_thread.start()
 
 def init_rclpy():
     print("initializing rclpy")
@@ -43,5 +55,6 @@ if __name__ == "__main__":
     init_rclpy()
     offboard_control_instance = offboard_control.OffboardControl()
     offboard_control.init(offboard_control_instance)
+    init_image_bridge()
     app.run()
 
