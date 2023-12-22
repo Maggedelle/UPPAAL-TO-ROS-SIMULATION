@@ -3,9 +3,18 @@ from ROS import vehicle_odometry, offboard_control, camera_control
 import rclpy
 import os
 import threading
+import time
+
+
 
 app = Flask(__name__)
 global offboard_control_instance
+
+global queue
+queue = []
+
+global running_task
+running_task = False
 
 @app.route('/')
 def hello():
@@ -21,8 +30,7 @@ def get_postion_y():
 
 @app.route('/shutdown_drone')
 def shutdown_drone():
-    if offboard_control_instance != None:
-        offboard_control_instance.shutdown_drone = True
+    queue.append({"type":"shutdown_drone"})
     return 'Shutting down drone'
 
 global image_num
@@ -40,12 +48,11 @@ def take_image():
 
 
 @app.route('/move_drone')
-def move_drone():
+def move_drone_endpoint():
     new_x = request.args.get('x')
     new_y = request.args.get('y')
     print(new_x,offboard_control_instance.x,new_y,offboard_control_instance.y)
-    offboard_control_instance.x = float(new_x)
-    offboard_control_instance.y = float(new_y)
+    queue.append({"type":"move_drone", "x": float(new_x), "y": float(new_y)})
     return 'moving drone along x axis'
 
 def init_image_bridge():
@@ -56,14 +63,58 @@ def init_image_bridge():
     image_bridge_thread = threading.Thread(target=run_bridge)
     image_bridge_thread.start()
 
+
+def move_drone(task):
+    print("Beginning to move drone")
+    global running_task
+    e = 0.03
+    offboard_control_instance.x = task["x"]
+    offboard_control_instance.y = task["y"]
+    curr_x = float(vehicle_odometry.get_drone_pos_x())
+    curr_y = float(vehicle_odometry.get_drone_pos_y())
+    while(task["x"]-e > curr_x or curr_x > task["x"]+e):
+        time.sleep(0.5)
+        curr_x = float(vehicle_odometry.get_drone_pos_x())
+        curr_y = float(vehicle_odometry.get_drone_pos_y())
+    running_task = False
+
+        
+
+    
+        
+    
+
+def main_loop():
+    threading.Timer(0.1, main_loop).start()
+    global queue
+    global running_task
+
+    if(len(queue) == 0 or running_task == True):
+        return 0
+    
+    running_task = True
+    current_task = queue.pop(0)
+    match current_task["type"]:
+        case "move_drone":
+            move_drone(current_task)
+        case "shutdown_drone":
+            if offboard_control_instance != None:
+                offboard_control_instance.shutdown_drone = True
+                running_task = False
+        
+    
+
+
 def init_rclpy():
     print("initializing rclpy")
     rclpy.init()
+
 
 if __name__ == "__main__":
     init_rclpy()
     offboard_control_instance = offboard_control.OffboardControl()
     offboard_control.init(offboard_control_instance)
     init_image_bridge()
+    main_loop()
     app.run()
 

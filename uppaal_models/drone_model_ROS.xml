@@ -3,9 +3,9 @@
 <nta>
 	<declaration>// Place global declarations here.
 // ENVIRONMENT
-const int goal_x = 6; 
+const int goal_x = 5; 
 const int goal_y = 9;
-const double e = 0.05;
+const double e = 0.1;
 
 
 
@@ -17,8 +17,8 @@ const int env[11][11] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 0, 2, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -32,19 +32,25 @@ import "/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/cpp_client/build/libhttp_test.so
     double get_position_x();
     double get_position_y();
     void shutdown_drone();
-    void move_drone(int x,int y);
+    int move_drone(int x,int y);
 };
 
 
 
-int x = 9; // ROW
-int y = 1;  // COL
+
+int x = 1; // ROW
+int y = 9;  // COL
+
+int offset_x = 1;
+int offset_y = 9;
 
 int drone_x = 0;
 int drone_y = 0;
 
 int prev_x = 0;
 int prev_y = 0;
+
+int moved_drone = 0;
 
 clock c;
 int drone_state = 0;
@@ -56,9 +62,9 @@ void move(int dir_x, int dir_y) {
     prev_y = y; // y = 1
     x = x + dir_x; // x = 9
     y = y + dir_y; // y = 0
-    drone_x = x - 9;
-    drone_y = (y - 1) * -1;
-    move_drone(drone_x,drone_y);
+    drone_x = x - offset_x;
+    drone_y = (y - offset_y) * -1;
+    moved_drone = move_drone(drone_x,drone_y);
     drone_state = env[x][y];
 }
 
@@ -72,7 +78,7 @@ int isValidMove(int dir_x, int dir_y) {
 
 
 int get_x() {
-    double curr_x = get_position_x();
+    double curr_x = drone_x;
     if (drone_x-e &lt;= curr_x &amp;&amp; curr_x &lt;= drone_x+e) {
         return x;
     }else {
@@ -81,9 +87,7 @@ int get_x() {
 }
 
 int get_y() {
-    double curr_y = get_position_y();
-
-
+    double curr_y = drone_y;
     if (drone_y-e &lt;= curr_y &amp;&amp; curr_y &lt;= drone_y+e) {
         return y;
     }else {
@@ -95,16 +99,16 @@ int get_y() {
 			<label kind="invariant" x="1963" y="-136">c &lt;= 1</label>
 		</location>
 		<location id="id1" x="1428" y="229">
-			<name x="1418" y="195">waiting</name>
-			<label kind="invariant" x="1351" y="238">c &lt;= 1</label>
+			<name x="1402" y="195">waiting</name>
+			<urgent/>
 		</location>
 		<location id="id2" x="1428" y="-119">
 			<name x="1386" y="-127">UP</name>
 			<label kind="invariant" x="1454" y="-127">c &lt;= 1</label>
 		</location>
-		<location id="id3" x="1428" y="578">
-			<name x="1368" y="569">DOWN</name>
-			<label kind="invariant" x="1453" y="569">c &lt;= 1</label>
+		<location id="id3" x="1428" y="570">
+			<name x="1368" y="561">DOWN</name>
+			<label kind="invariant" x="1453" y="561">c &lt;= 1</label>
 		</location>
 		<location id="id4" x="1028" y="229">
 			<name x="1011" y="187">LEFT</name>
@@ -126,7 +130,7 @@ int get_y() {
 		<transition id="id7">
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="guard" x="1742" y="34">x == goal_x &amp;&amp; y == goal_y</label>
+			<label kind="guard" x="1742" y="25">x == goal_x &amp;&amp; y == goal_y</label>
 			<label kind="assignment" x="1743" y="45">c = 0,
 shutdown_drone()</label>
 		</transition>
@@ -179,16 +183,16 @@ c = 0</label>
 		<transition id="id14" controllable="false">
 			<source ref="id3"/>
 			<target ref="id1"/>
-			<label kind="guard" x="1173" y="374">x == get_x() &amp;&amp; c == 1</label>
-			<label kind="assignment" x="1317" y="399">c = 0</label>
+			<label kind="guard" x="1181" y="408">x == get_x() &amp;&amp; c == 1</label>
+			<label kind="assignment" x="1317" y="433">c = 0</label>
 			<nail x="1385" y="493"/>
 			<nail x="1385" y="314"/>
 		</transition>
 		<transition id="id15">
 			<source ref="id1"/>
 			<target ref="id3"/>
-			<label kind="guard" x="1445" y="374">isValidMove(1,0) != 1</label>
-			<label kind="assignment" x="1445" y="399">move(1, 0),
+			<label kind="guard" x="1445" y="391">isValidMove(1,0) != 1</label>
+			<label kind="assignment" x="1445" y="408">move(1, 0),
 c = 0</label>
 		</transition>
 		<transition id="id16" controllable="false">
@@ -209,18 +213,18 @@ c = 0</label>
 		<transition id="id18" controllable="false">
 			<source ref="id2"/>
 			<target ref="id1"/>
-			<label kind="guard" x="1487" y="17">x == get_x() &amp;&amp; c == 1</label>
-			<label kind="assignment" x="1802" y="8">c = 0</label>
-			<nail x="1470" y="-34"/>
-			<nail x="1470" y="136"/>
+			<label kind="guard" x="1487" y="9">x == get_x() &amp;&amp; c == 1</label>
+			<label kind="assignment" x="1487" y="34">c = 0</label>
+			<nail x="1470" y="-42"/>
+			<nail x="1470" y="128"/>
 		</transition>
 		<transition id="id19" controllable="false">
 			<source ref="id3"/>
 			<target ref="id3"/>
-			<label kind="guard" x="1385" y="646">x != get_x() &amp;&amp; c == 1</label>
-			<label kind="assignment" x="1411" y="671">c = 0</label>
-			<nail x="1394" y="638"/>
-			<nail x="1462" y="638"/>
+			<label kind="guard" x="1385" y="638">x != get_x() &amp;&amp; c == 1</label>
+			<label kind="assignment" x="1411" y="663">c = 0</label>
+			<nail x="1394" y="630"/>
+			<nail x="1462" y="630"/>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
@@ -239,9 +243,6 @@ system DroneAbstract;
 		<query>
 			<formula>strategy Safe = control: A[] Drone.drone_state != 1</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-10 19:08:14 +0100">
-				<option key="--diagnostic" value="-1"/>
-			</result>
 		</query>
 		<query>
 			<formula>strategy Goal = control: A&lt;&gt; Drone.x == goal_x &amp;&amp; Drone.y == goal_y</formula>
@@ -260,50 +261,37 @@ strategy Safe = loadStrategy{i,j}-&gt;{d,f}("folder/file.json")</formula>
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy SafeFast = loadStrategy{DroneAbstract.x, DroneAbstract.y, goal_x, goal_y, DroneAbstract.c}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
+			<formula>strategy SafeFast = loadStrategy{DroneAbstract.x, DroneAbstract.y}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2023-12-11 14:37:40 +0100">
+			<option key="--diagnostic" value="-1"/>
+			<result outcome="success" type="quality" timestamp="2023-12-21 12:26:13 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>simulate[&lt;=100000000;1]{DroneAbstract.drone_x, DroneAbstract.drone_y, DroneAbstract.x, DroneAbstract.y} :  DroneAbstract.Target under SafeFast</formula>
 			<comment/>
-			<result outcome="success" type="interval" value="≥ 0.025 (95% CI)" timestamp="2023-12-11 14:38:48 +0100">
+			<result outcome="success" type="interval" value="≥ 0.025 (95% CI)" timestamp="2023-12-21 13:27:36 +0100">
 				<option key="--diagnostic" value="-1"/>
 				<details>≥ 0.025 (95% CI)</details>
 				<plot title="Simulations (1)" xaxis="time" yaxis="value">
 					<series title="DroneAbstract.drone_x" type="l" color="0xff0000" encoding="csv">0.0,0.0
-63.0,-1.0
-100.0,-2.0
-340.0,-3.0
+1.0,1.0
+2.0,2.0
+3.0,3.0
+4.0,4.0
 					</series>
 					<series title="DroneAbstract.drone_y" type="l" color="0x80ff00" encoding="csv">0.0,0.0
-22.0,0.0
-136.0,-1.0
-184.0,-2.0
-210.0,-3.0
-245.0,-4.0
-275.0,-5.0
-295.0,-6.0
-314.0,-7.0
-340.0,-8.0
+4.0,0.0
 					</series>
-					<series title="DroneAbstract.x" type="l" color="0x00ffff" encoding="csv">0.0,9.0
-63.0,8.0
-100.0,7.0
-340.0,6.0
+					<series title="DroneAbstract.x" type="l" color="0x00ffff" encoding="csv">0.0,1.0
+1.0,2.0
+2.0,3.0
+3.0,4.0
+4.0,5.0
 					</series>
-					<series title="DroneAbstract.y" type="l" color="0x8000ff" encoding="csv">0.0,1.0
-22.0,1.0
-136.0,2.0
-184.0,3.0
-210.0,4.0
-245.0,5.0
-275.0,6.0
-295.0,7.0
-314.0,8.0
-340.0,9.0
+					<series title="DroneAbstract.y" type="l" color="0x8000ff" encoding="csv">0.0,9.0
+4.0,9.0
 					</series>
 					<comment/>
 				</plot>
