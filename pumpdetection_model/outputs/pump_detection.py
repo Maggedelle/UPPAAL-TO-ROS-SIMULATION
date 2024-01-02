@@ -1,5 +1,6 @@
 import urllib.request
 import os
+from os import listdir
 import ssl
 import json
 import torch
@@ -14,7 +15,6 @@ import matplotlib.patches as patches
 from glob import glob
 import re
 import typing
-
 
 def allowSelfSignedHttps(allowed):
     # bypass the server certificate verification on client side
@@ -96,14 +96,8 @@ def draw_response_matplotlib(image_path, response_result):
     plt.show()
 
 # Function to run model series inference
-def run_pumpmodel():
-    url = 'https://pump-detection-1.northeurope.inference.ml.azure.com/score'
-    api_key = 'Iu6dwaxhG038tQ0738TRwnLoga70HSuL'
-    headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
-
+def run_pumpmodel(img, data):
     # POST Request
-    img = 'pics/camera_image.jpg'
-    data = open(img, 'rb').read()
     req_post = urllib.request.Request(url, data, headers=headers, method="POST")
 
     try:
@@ -119,14 +113,8 @@ def run_pumpmodel():
         print(error.read().decode("utf8", 'ignore'))
 
 # Function to run model binary inference
-def run_pumpdetection():
-    url = 'https://pump-detection-1.northeurope.inference.ml.azure.com/score'
-    api_key = 'Iu6dwaxhG038tQ0738TRwnLoga70HSuL'
-    headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
-
+def run_pumpdetection(img, data):
     # POST Request
-    img = 'pics/camera_image.jpeg'
-    data = open(img, 'rb').read()
     req_post = urllib.request.Request(url, data, headers=headers, method="POST")
 
     try:
@@ -135,11 +123,14 @@ def run_pumpdetection():
         response_data = json.loads(result.decode("utf-8"))
 
         if response_data['boxes'] == []: # e.g. b'{"filename": "/tmp/tmpyxfzybjt/tmptv601ser", "boxes": []}\n'
-            result = False
+            result_binary = False
         else:
-            result = True
+            result_binary = True
 
-        print("Post request result: ", result)
+        #draw_response_matplotlib(img, result)
+        print("Post request result: ", result_binary)
+
+        return result_binary
     
     except urllib.error.HTTPError as error:
         print("The POST request failed with status code: " + str(error.code))
@@ -199,3 +190,29 @@ def get_detection_results():
     
     
 get_detection_results()
+url = 'https://pump-detection-1.northeurope.inference.ml.azure.com/score'
+api_key = 'Iu6dwaxhG038tQ0738TRwnLoga70HSuL'
+headers = {'Content-Type':'application/> octet-stream', 'Authorization':('Bearer '+ api_key), 'azureml-model-deployment': 'pumpdetectionpytorch-1' }
+
+def run_experiment():
+    root = 'pics/'
+    log_file = 'distance_result_log_real.txt'
+
+    with open(log_file, 'w') as log_file:
+        for folder in os.listdir(root):
+            full_folder_path = os.path.join(root, folder)
+            if folder[0].isdigit() and os.path.isdir(full_folder_path):
+                for image in os.listdir(full_folder_path):
+                    # check if the image ends with png
+                    if (image.endswith(".JPG") or image.endswith(".jpg")):
+                        image_path = os.path.join(full_folder_path, image)
+                        image_path = image_path.replace(os.sep, '/')
+                        data = open(image_path, 'rb').read()
+                        print(f"Name of image: {image}, Result: {run_pumpdetection(image_path, data)}", file=log_file)
+
+pic = 'pics/0.350m/image_0.349_3.JPG'
+data = open(pic, 'rb').read()
+
+run_pumpdetection(pic, data)
+
+#run_pumpmodel()
