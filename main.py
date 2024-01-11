@@ -72,7 +72,7 @@ def move_drone(task):
     offboard_control_instance.y = task["y"]
     curr_x = float(vehicle_odometry.get_drone_pos_x())
     curr_y = float(vehicle_odometry.get_drone_pos_y())
-    while(task["x"]-e > curr_x or curr_x > task["x"]+e):
+    while((task["x"]-e > curr_x or curr_x > task["x"]+e) or (task["y"]-e > curr_y or curr_y > task["y"]+e)):
         time.sleep(0.5)
         curr_x = float(vehicle_odometry.get_drone_pos_x())
         curr_y = float(vehicle_odometry.get_drone_pos_y())

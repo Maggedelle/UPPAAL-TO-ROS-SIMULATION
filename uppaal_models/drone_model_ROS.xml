@@ -3,8 +3,8 @@
 <nta>
 	<declaration>// Place global declarations here.
 // ENVIRONMENT
-const int goal_x = 5; 
-const int goal_y = 9;
+const int goal_x = 6; 
+const int goal_y = 8;
 const double e = 0.1;
 
 
@@ -17,8 +17,8 @@ const int env[11][11] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-    {1, 0, 0, 1, 1, 1, 1, 1, 0, 2, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -38,11 +38,11 @@ import "/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/cpp_client/build/libhttp_test.so
 
 
 
-int x = 1; // ROW
-int y = 9;  // COL
+int x = 9; // ROW
+int y = 1;  // COL
 
-int offset_x = 1;
-int offset_y = 9;
+int offset_x = 9;
+int offset_y = 1;
 
 int drone_x = 0;
 int drone_y = 0;
@@ -261,37 +261,49 @@ strategy Safe = loadStrategy{i,j}-&gt;{d,f}("folder/file.json")</formula>
 			<comment/>
 		</query>
 		<query>
-			<formula>strategy SafeFast = loadStrategy{DroneAbstract.x, DroneAbstract.y}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
+			<formula>strategy SafeFast = loadStrategy{DroneAbstract.x, DroneAbstract.y, goal_x, goal_y}-&gt;{}("/home/sw9-bois/UPPAAL-TO-ROS-SIMULATION/uppaal_models/fast.json")</formula>
 			<comment/>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2023-12-21 12:26:13 +0100">
+			<result outcome="success" type="quality" timestamp="2024-01-11 13:01:59 +0100">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>simulate[&lt;=100000000;1]{DroneAbstract.drone_x, DroneAbstract.drone_y, DroneAbstract.x, DroneAbstract.y} :  DroneAbstract.Target under SafeFast</formula>
 			<comment/>
-			<result outcome="success" type="interval" value="≥ 0.025 (95% CI)" timestamp="2023-12-21 13:27:36 +0100">
+			<result outcome="success" type="interval" value="≥ 0.025 (95% CI)" timestamp="2024-01-11 13:07:47 +0100">
 				<option key="--diagnostic" value="-1"/>
 				<details>≥ 0.025 (95% CI)</details>
 				<plot title="Simulations (1)" xaxis="time" yaxis="value">
 					<series title="DroneAbstract.drone_x" type="l" color="0xff0000" encoding="csv">0.0,0.0
-1.0,1.0
-2.0,2.0
-3.0,3.0
-4.0,4.0
+1.0,0.0
+2.0,-1.0
+3.0,-2.0
+10.0,-3.0
 					</series>
 					<series title="DroneAbstract.drone_y" type="l" color="0x80ff00" encoding="csv">0.0,0.0
-4.0,0.0
+4.0,-1.0
+5.0,-2.0
+6.0,-3.0
+7.0,-4.0
+8.0,-5.0
+9.0,-6.0
+10.0,-7.0
 					</series>
-					<series title="DroneAbstract.x" type="l" color="0x00ffff" encoding="csv">0.0,1.0
-1.0,2.0
-2.0,3.0
-3.0,4.0
-4.0,5.0
+					<series title="DroneAbstract.x" type="l" color="0x00ffff" encoding="csv">0.0,9.0
+1.0,9.0
+2.0,8.0
+3.0,7.0
+10.0,6.0
 					</series>
-					<series title="DroneAbstract.y" type="l" color="0x8000ff" encoding="csv">0.0,9.0
-4.0,9.0
+					<series title="DroneAbstract.y" type="l" color="0x8000ff" encoding="csv">0.0,1.0
+4.0,2.0
+5.0,3.0
+6.0,4.0
+7.0,5.0
+8.0,6.0
+9.0,7.0
+10.0,8.0
 					</series>
 					<comment/>
 				</plot>
