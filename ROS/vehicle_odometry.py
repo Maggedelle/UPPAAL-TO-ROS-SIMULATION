@@ -32,7 +32,6 @@ def get_drone_pos_x():
     vehicle_listener = VehicleOdomListener()
     executor.add_node(vehicle_listener)
     executor.spin_once()
-    print(vehicle_listener.x)
     return str(vehicle_listener.x)
 
 def get_drone_pos_y():
@@ -40,6 +39,5 @@ def get_drone_pos_y():
     vehicle_listener = VehicleOdomListener()
     executor.add_node(vehicle_listener)
     executor.spin_once()
-    print(vehicle_listener.y)
     return str(vehicle_listener.y)
 
